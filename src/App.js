@@ -167,12 +167,11 @@ class Welcome extends React.Component {
             Jumlah Task {this.state.taskList.length}
           </span>
 
-          <Row style={{ marginTop: 20 }}>
+          <Row style={{ marginTop: 20 }} gutter={16}>
             {this.state.taskList?.map((task, index) => (
-              <Col span={4} key={task?.id}>
+              <Col span={6} key={task?.id}>
                 <Card
                   style={{
-                    width: 300,
                     marginTop: 16,
                   }}
                   title={task.name}
