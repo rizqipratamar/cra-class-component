@@ -1,12 +1,7 @@
 import React from "react";
 import "./App.css";
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  PlusOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { Button, Card, PageHeader, Tooltip, Col, Row } from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, PageHeader, Tooltip, Col, Row, Modal } from "antd";
 
 const initialState = {
   date: new Date(),
@@ -20,6 +15,7 @@ const initialState = {
       status: true,
     },
   ],
+  selectedTask: null,
 };
 
 const routes = [
@@ -71,6 +67,37 @@ class Welcome extends React.Component {
     });
   };
 
+  selectTask = (task) => {
+    this.setState({
+      selectedTask: task,
+    }); // set selected task
+  };
+
+  updateTask = () => {
+    // update task
+    const { taskList, selectedTask } = this.state;
+    const newTaskList = taskList.map((task) => {
+      if (task.id === selectedTask.id) {
+        return selectedTask;
+      }
+      return task;
+    });
+    this.setState({
+      taskList: newTaskList,
+      selectedTask: null,
+    });
+  };
+
+  deleteTask = (selectedTask) => {
+    // delete task
+    const { taskList } = this.state;
+    const newTaskList = taskList.filter((task) => task.id !== selectedTask.id);
+    this.setState({
+      taskList: newTaskList,
+      selectedTask: null,
+    });
+  };
+
   render() {
     return (
       <>
@@ -82,6 +109,47 @@ class Welcome extends React.Component {
           }}
           subTitle={this.state.subtitle}
         />
+
+        <Modal
+          visible={this.state.selectedTask ? true : false}
+          onOk={() => {
+            this.updateTask();
+          }}
+          onCancel={() => this.selectTask(null)}
+        >
+          <Row>
+            <Col span={12}> Name </Col>{" "}
+            <Col span={12}>
+              <input
+                value={this.state.selectedTask?.name}
+                onChange={(e) =>
+                  this.setState({
+                    selectedTask: {
+                      ...this.state.selectedTask,
+                      name: e.target.value,
+                    },
+                  })
+                }
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}> Description </Col>{" "}
+            <Col span={12}>
+              <textarea
+                value={this.state.selectedTask?.desc}
+                onChange={(e) =>
+                  this.setState({
+                    selectedTask: {
+                      ...this.state.selectedTask,
+                      desc: e.target.value,
+                    },
+                  })
+                }
+              />
+            </Col>
+          </Row>
+        </Modal>
 
         <Card>
           <Tooltip title="Add Task">
@@ -100,7 +168,7 @@ class Welcome extends React.Component {
           </span>
 
           <Row style={{ marginTop: 20 }}>
-            {this.state.taskList?.map((task) => (
+            {this.state.taskList?.map((task, index) => (
               <Col span={4} key={task?.id}>
                 <Card
                   style={{
@@ -109,9 +177,14 @@ class Welcome extends React.Component {
                   }}
                   title={task.name}
                   actions={[
-                    <SettingOutlined key="setting" />,
-                    <EditOutlined key="edit" />,
-                    <EllipsisOutlined key="ellipsis" />,
+                    <EditOutlined
+                      key="edit"
+                      onClick={() => this.selectTask(task)}
+                    />,
+                    <DeleteOutlined
+                      key="delete"
+                      onClick={() => this.deleteTask(task)}
+                    />,
                   ]}
                 >
                   {task.desc}
